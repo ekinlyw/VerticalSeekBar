@@ -6,11 +6,19 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class VerticalSeekBar extends SeekBar {
 
     private static final String TAG = "VerticalSeekBar";
+
+    private boolean mIsDragging;
+
+    private OnSeekBarChangeListener mOnSeekBarChangeListener;
 
     public VerticalSeekBar(Context context) {
         super(context);
@@ -49,18 +57,53 @@ public class VerticalSeekBar extends SeekBar {
             return false;
         }
 
-        // super.onTouchEvent(event);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 setPressed(true);
+                onStartTrackingTouch();
+                trackTouchEvent(event);
+                break;
             case MotionEvent.ACTION_MOVE:
+                setPressed(true);
+                if (!mIsDragging) {
+                    onStartTrackingTouch();
+                }
+                trackTouchEvent(event);
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                if (mIsDragging) {
+                    trackTouchEvent(event);
+                    onStopTrackingTouch();
+                }
                 setPressed(false);
                 break;
         }
 
+        return true;
+    }
+
+    @Override
+    public void setOnSeekBarChangeListener(OnSeekBarChangeListener l) {
+        super.setOnSeekBarChangeListener(l);
+        mOnSeekBarChangeListener = l;
+    }
+
+    private void onStartTrackingTouch() {
+        mIsDragging = true;
+        if (mOnSeekBarChangeListener != null) {
+            mOnSeekBarChangeListener.onStartTrackingTouch(this);
+        }
+    }
+
+    private void onStopTrackingTouch() {
+        mIsDragging = false;
+        if (mOnSeekBarChangeListener != null) {
+            mOnSeekBarChangeListener.onStopTrackingTouch(this);
+        }
+    }
+
+    private void trackTouchEvent(MotionEvent event) {
         final int y = (int)event.getY();
         final int height = getHeight();
         final int paddingRight = getPaddingRight();
@@ -76,13 +119,39 @@ public class VerticalSeekBar extends SeekBar {
         }
 
         float progress = (scale * getMax());
-        setProgress((int)progress);
-        return true;
+
+        // The new progress is initiated by the user
+        setProgress((int)progress, true);
     }
 
-    @Override
-    public synchronized void setProgress(int progress) {
-        super.setProgress(progress);
+    /**
+     * Invoke *private* ProgressBar#setProgress(int, boolean) by reflection. The
+     * "boolean" parameter of OnSeekBarChangeListener#onProgressChanged(SeekBar,
+     * int, boolean) is passed as "false" by "setProgress(int)
+     *
+     * @param progress The new progress, between 0 and getMax()
+     * @param fromUser True if the progress change was initiated by the user.
+     */
+    private synchronized void setProgress(int progress, boolean fromUser) {
+        // TODO: It might have performance issue by reflection
+        try {
+            Method method = ProgressBar.class.getDeclaredMethod("setProgress", new Class[] {
+                    int.class, boolean.class
+            });
+            method.setAccessible(true);
+            method.invoke(this, new Object[] {
+                    progress, fromUser
+            });
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
         // To update the thumb position internally through onSizeChanged()
         onSizeChanged(getWidth(), getHeight(), 0, 0);
     }
