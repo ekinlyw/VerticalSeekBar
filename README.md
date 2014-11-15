@@ -19,9 +19,6 @@ Usage
 2.In the source code,
 
 	VerticalSeekBar vSeekBar = new VerticalSeekBar(Context);
-Limitation
-===============
-Currently, OnSeekBarChangeListener is not considered.
 
 Developed by
 ===============
