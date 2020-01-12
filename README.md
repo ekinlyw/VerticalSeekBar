@@ -7,6 +7,7 @@ Screenshots
 ![](https://user-images.githubusercontent.com/1778805/72220397-aac93880-3593-11ea-94c6-16805cf8ddab.png)
 
 ![](https://user-images.githubusercontent.com/1778805/72220402-b0268300-3593-11ea-9fcf-336735f258bc.png)
+<br />
 Usage
 ===============
 1.In layout XML,
