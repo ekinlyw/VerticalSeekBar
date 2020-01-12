@@ -4,9 +4,9 @@ VerticalSeekBar widget is customized from [SeekBar](http://developer.android.com
 
 Screenshots
 ===============
-![](https://dl.dropboxusercontent.com/u/16783438/github/VerticalSeekBar/screenshot_01.png)
+![](https://user-images.githubusercontent.com/1778805/72220397-aac93880-3593-11ea-94c6-16805cf8ddab.png)
 
-![](https://dl.dropboxusercontent.com/u/16783438/github/VerticalSeekBar/screenshot_02.png)
+![](https://user-images.githubusercontent.com/1778805/72220402-b0268300-3593-11ea-9fcf-336735f258bc.png)
 Usage
 ===============
 1.In layout XML,
